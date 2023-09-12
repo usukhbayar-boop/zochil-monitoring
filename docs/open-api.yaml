@@ -1,0 +1,2357 @@
+openapi: "3.0.2"
+
+info:
+  title: Zochil API Documentation
+  version: "2.0"
+  x-logo:
+    url: https://cdn.zochil.shop/zochil-dark-logo.png
+
+tags:
+  - name: Дэлгүүр
+    description: Storefront буюу дэлгүүрийн вебсайтнаас мерчант, мэдээ, баннер, хуудаснууд, тохиргоонуудын мэдээлэл авах сервисүүд
+  - name: Мерчант
+    description: Мерчантын апп болон админ веб ашиглах харилцагч, импорт, експорт, гэрээ,  сервисүүд
+  - name: Хэрэглэгч
+    description: Хэрэглэгч, мерчант, ажилчидын танилт болон нэвтрэлтийн сервисүүд
+  - name: Каталог
+    description: Бүтээгдэхүүн, брэнд, ангилал, агуулахын үлдэгдэл, вариантууд
+  - name: Захиалга
+    description: Сагс, захиалга, хүргэлт, төлбөрийн хэрэгсэлүүд
+  - name: Аналик
+    description: Дэлгүүрийн хандалт
+  - name: Маркетплэйс
+    description: Маркетплэйстэй холбоотой сервисүүд
+  - name: Монитор
+    description: Монитортой холбоотой сервисүүд
+
+servers:
+  - url: https://api.zochil.io/v3
+
+paths:
+  # User
+  /user/accounts/check-email:
+    post:
+      summary: Хэрэглэгчийн и-мэйл шалгах
+      tags:
+        - "Хэрэглэгч"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+              properties:
+                email:
+                  type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  is_existing:
+                    type: boolean
+                  is_complete:
+                    type: boolean
+  /user/accounts/verify-email:
+    post:
+      summary: Хэрэглэгчийн и-мэйл баталгаажуулах
+      tags:
+        - "Хэрэглэгч"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - code
+              properties:
+                email:
+                  type: string
+                code:
+                  type: string
+      responses:
+        "200":
+          description: OK
+  /user/accounts/login-with-password:
+    post:
+      summary: Хэрэглэгч и-мэйл хаягаараа нэвтрэх
+      tags:
+        - "Хэрэглэгч"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+  /user/accounts/login-with-facebook:
+    post:
+      summary: Хэрэглэгч FB ашиглан нэвтрэх
+      tags:
+        - "Хэрэглэгч"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - access_token
+              properties:
+                access_token:
+                  type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+  /user/accounts/login-from-mini-app:
+    post:
+      summary: Miniapp - с хэрэглэгч нэвтрэх
+      tags:
+        - "Хэрэглэгч"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - code
+                - provider
+                - shop_id
+              properties:
+                code:
+                  type: string
+                provider:
+                  type: string
+                shop_id:
+                  type: number
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+  /user/users/login:
+    post:
+      summary: Мерчант хэрэглэгч утасны дугаараар нэвтрэх
+      tags:
+        - "Хэрэглэгч"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+  /user/users/register-with-phone:
+    post:
+      summary: Мерчант хэрэглэгч утасны дугаараар бүртгүүлэх
+      description: Хэрэв хэрэглэгчийн утасын дугаар давхцаагүй бол утасны дугаар руу OTP илгээнэ
+      tags:
+        - "Хэрэглэгч"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - phone
+              properties:
+                phone:
+                  type: string
+                first_name:
+                  type: string
+                last_name:
+                  type: string
+                full_name:
+                  type: string
+      responses:
+        "200":
+          description: OK
+  /user/users/verify-phone:
+    post:
+      summary: Мерчант хэрэглэгч бүртгүүлсэн дугаараа баталгаажуулах
+      tags:
+        - "Хэрэглэгч"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - phone
+              properties:
+                phone:
+                  type: string
+                otp:
+                  type: string
+                password:
+                  type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+  /user/users/reset-password:
+    post:
+      summary: Мерчант хэрэглэгч нууц үгээ сэргээх хүсэлт илгээх
+      description: Хэрэв хэрэглэгчийн утасын дугаар бүртгэлтэй бол утасны дугаар руу OTP илгээх
+      tags:
+        - "Хэрэглэгч"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - phone
+              properties:
+                phone:
+                  type: string
+      responses:
+        "200":
+          description: OK
+  /user/users/change-password:
+    post:
+      summary: Мерчант хэрэглэгч нууц үгээ солих
+      tags:
+        - "Хэрэглэгч"
+      responses:
+        "200":
+          description: OK
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                new_password:
+                  type: string
+                current_password:
+                  type: string
+  /user/users/check-access-token:
+    post:
+      summary: Мерчант хэрэглэгч токеноо шалгах
+      tags:
+        - "Хэрэглэгч"
+      responses:
+        "200":
+          description: OK
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                access_token:
+                  type: string
+  /user/users/user-info:
+    get:
+      summary: Мерчант хэрэглэгч хувийн мэдээллээ авах
+      tags:
+        - "Хэрэглэгч"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: number
+                  first_name:
+                    type: string
+                  last_name:
+                    type: string
+                  full_name:
+                    type: string
+                  auth_type:
+                    type: string
+                  phone:
+                    type: string
+                  email:
+                    type: string
+                  avatar:
+                    type: string
+  /user/users/update-profile:
+    post:
+      summary: Мерчант хэрэглэгч хувийн мэдээллээ засах
+      tags:
+        - "Хэрэглэгч"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: number
+                first_name:
+                  type: string
+                last_name:
+                  type: string
+                phone:
+                  type: string
+                email:
+                  type: string
+                avatar:
+                  type: string
+      responses:
+        "200":
+          description: OK
+  /user/users/configure-psid:
+    post:
+      summary: Админ чатботноос нэвтэрсэн хэрэглэгч PSID бүртгүүлэх
+      tags:
+        - "Хэрэглэгч"
+      responses:
+        "200":
+          description: OK
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                psid:
+                  type: string
+  /user/users/invitations:
+    get:
+      summary: Мерчант хэрэглэгч илгээсэн урилгуудаа харах
+      tags:
+        - "Хэрэглэгч"
+      responses:
+        "200":
+          description: OK
+  /user/users/invitations/check-phone:
+    post:
+      summary: Мерчант хэрэглэгч урих боломжтой эсэхийг шалгах
+      tags:
+        - "Хэрэглэгч"
+      responses:
+        "200":
+          description: OK
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                phone:
+                  type: string
+  /user/users/invitations/invite:
+    post:
+      summary: Мерчант хэрэглэгч урилга илгээх
+      tags:
+        - "Хэрэглэгч"
+      responses:
+        "200":
+          description: OK
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                phone:
+                  type: string
+                email:
+                  type: string
+                full_name:
+                  type: string
+                merchant_name:
+                  type: string
+
+  # Storefront paths
+  /storefront/shops/:uid:
+    get:
+      summary: Дэлгүүрийн мэдээлэл авах
+      tags:
+        - "Дэлгүүр"
+      responses:
+        "200":
+          description: OK
+  /storefront/pages/:shop_id/:code:
+    get:
+      summary: Дэлгүүрийн хуудас кодоор авах
+      tags:
+        - "Дэлгүүр"
+      responses:
+        "200":
+          description: OK
+  /storefront/pages/faq/:shop_id:
+    get:
+      summary: Дэлгүүрийн түгээмэл асуултуудын жагсаалт
+      tags:
+        - "Дэлгүүр"
+      responses:
+        "200":
+          description: OK
+  /storefront/posts/:shop_id:
+    get:
+      summary: Дэлгүүрийн мэдээний жагсаалт
+      tags:
+        - "Дэлгүүр"
+      responses:
+        "200":
+          description: OK
+  /storefront/posts/:shop_id/:id:
+    get:
+      summary: Мэдээний дэлгэрэнгүй ID-гаар авах
+      tags:
+        - "Дэлгүүр"
+      responses:
+        "200":
+          description: OK
+  /storefront/banners/:shop_id:
+    get:
+      summary: Дэлгүүрийн баннерын жагсаалт
+      tags:
+        - "Дэлгүүр"
+      responses:
+        "200":
+          description: OK
+  /storefront/banners/:shop_id/:id:
+    get:
+      summary: Баннерын дэлгэрэнгүй ID-гаар авах
+      tags:
+        - "Дэлгүүр"
+      responses:
+        "200":
+          description: OK
+  /storefront/bank-accounts/:shop_id:
+    get:
+      summary: Банкны дансны жагсаалт
+      tags:
+        - "Дэлгүүр"
+      responses:
+        "200":
+          description: OK
+  /storefront/payment-methods/:shop_id:
+    get:
+      summary: Төлбөрийн хэрэгсэлүүдийн жагсаалт
+      tags:
+        - "Дэлгүүр"
+      responses:
+        "200":
+          description: OK
+  /storefront/collections/list:
+    get:
+      summary: Дэлгүүрийн коллекцуудын жагсаалт
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: number
+        - in: query
+          name: limit
+          schema:
+            type: number
+        - in: query
+          name: shop_id
+          schema:
+            type: number
+      description: Хэрэглэгч тухайн дэлгүүрт үүссэн коллекцуудын жагсаалт авна
+      tags:
+        - "Дэлгүүр"
+      responses:
+        "200":
+          description: OK
+  /storefront/collections/detail:
+    get:
+      summary: Дэлгүүрийн коллекцын дэлгэрэнгүй
+      parameters:
+        - in: query
+          name: id
+          schema:
+            type: number
+        - in: query
+          name: shop_id
+          schema:
+            type: number
+      tags:
+        - "Дэлгүүр"
+      responses:
+        "200":
+          description: OK
+
+  # Analytics paths
+  /analytics/analytics/pageview:
+    post:
+      summary: "Хандалт бүртгэх"
+      tags:
+        - "Аналик"
+      responses:
+        "200":
+          description: OK
+  /analytics/analytics/track-event:
+    post:
+      summary: "Эвент бүртгэх"
+      tags:
+        - "Аналик"
+      responses:
+        "200":
+          description: OK
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - merchant_id
+                - event
+              properties:
+                event:
+                  type: string
+                  description:
+                    MOBILE_REGISTER,MOBILE_LOGIN,MOBILE_LOGOUT,MOBILE_RESET_PASSWORD,MOBILE_CREATE_SHOP,
+                    MOBILE_MERCHANT_SUBSCRIBE,MOBILE_UPDATE_CONTRACT
+                    MOBILE_UPDATE_MERCHANT,MOBILE_CHANGE_PASSWORD,MOBILE_PAGE_UPDATE
+                    MOBILE_BRAND_CREATE,MOBILE_BRAND_UPDATE,MOBILE_BRAND_REMOVE,
+                    MOBILE_CATEGORY_CREATE,MOBILE_CATEGORY_UPDATE,MOBILE_CATEGORY_REMOVE,
+                    MOBILE_PRODUCT_CREATE,MOBILE_PRODUCT_UPDATE,MOBILE_PRODUCT_REMOVE,
+                    MOBILE_BANNER_CREATE,MOBILE_BANNER_UPDATE,MOBILE_BANNER_REMOVE,
+                    MOBILE_POST_CREATE,MOBILE_POST_UPDATE,MOBILE_POST_REMOVE,
+                    MOBILE_BANKACCOUNT_CREATE,MOBILE_BANKACCOUNT_UPDATE,MOBILE_BANKACCOUNT_REMOVE,
+                    MOBILE_SALE_CREATE,MOBILE_SALE_UPDATE,MOBILE_SALE_REMOVE,
+                    MOBILE_COUPON_CREATE,MOBILE_COUPON_UPDATE,MOBILE_COUPON_REMOVE,
+                    MOBILE_VIEW_ORDER,MOBILE_CHANGE_ORDER_STATUS,MOBILE_DELIVERY_REQUEST,
+                    DASHBOARD_LOGIN,DASHBOARD_REGISTER,DASHBOARD_LOGOUT,DASHBOARD_RESET_PASSWORD,DASHBOARD_CREATE_SHOP,
+                    DASHBOARD_MERCHANT_SUBSCRIBE,DASHBOARD_UPDATE_CONTRACT
+                    DASHBOARD_UPDATE_MERCHANT,DASHBOARD_CHANGE_PASSWORD,DASHBOARD_PAGE_UPDATE
+                    DASHBOARD_BRAND_CREATE,DASHBOARD_BRAND_UPDATE,DASHBOARD_BRAND_REMOVE,
+                    DASHBOARD_CATEGORY_CREATE,DASHBOARD_CATEGORY_UPDATE,DASHBOARD_CATEGORY_REMOVE,
+                    DASHBOARD_PRODUCT_CREATE,DASHBOARD_PRODUCT_UPDATE,DASHBOARD_PRODUCT_REMOVE,
+                    DASHBOARD_BANNER_CREATE,DASHBOARD_BANNER_UPDATE,DASHBOARD_BANNER_REMOVE,
+                    DASHBOARD_POST_CREATE,DASHBOARD_POST_UPDATE,DASHBOARD_POST_REMOVE,
+                    DASHBOARD_BANKACCOUNT_CREATE,DASHBOARD_BANKACCOUNT_UPDATE,DASHBOARD_BANKACCOUNT_REMOVE,
+                    DASHBOARD_SALE_CREATE,DASHBOARD_SALE_UPDATE,DASHBOARD_SALE_REMOVE,
+                    DASHBOARD_COUPON_CREATE,DASHBOARD_COUPON_UPDATE,DASHBOARD_COUPON_REMOVE,
+                    DASHBOARD_VIEW_ORDER,DASHBOARD_CHANGE_ORDER_STATUS,DASHBOARD_DELIVERY_REQUEST,
+                os:
+                  type: string
+                  description: IOS/ANDROID/WINDOWS/MAC
+                device_udid:
+                  type: string
+                user_id:
+                  type: number
+                object_id:
+                  type: string
+                merchant_id:
+                  type: number
+                anonymous_id:
+                  type: number
+
+  # Order paths
+  /order/orders/make-order:
+    post:
+      summary: Захиалга үүсгэх
+      description: Нэвтэрсэн эцсийн хэрэглэгч дэлгүүрийн сайтнаас захиалга үүсгэнэ
+      tags:
+        - "Захиалга"
+      responses:
+        "200":
+          description: OK
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              allOf:
+                - properties:
+                    shop_id:
+                      type: number
+                - $ref: "#/components/schemas/OrderInput"
+                - properties:
+                    chatbot_user_psid:
+                      type: string
+                    miniapp:
+                      type: boolean
+                    miniapp_provider:
+                      type: string
+  /order/orders/list-for-accounts:
+    get:
+      summary: Хэрэглэгчийн захиалгуудын жагсаалт
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: number
+        - in: query
+          name: limit
+          schema:
+            type: number
+        - in: query
+          name: shop_id
+          schema:
+            type: number
+      description: Нэвтэрсэн мерчант хэрэглэгч тухайн дэлгүүр дээр хийсэн захиалгуудын жагсаалт авна
+      tags:
+        - "Захиалга"
+      responses:
+        "200":
+          description: OK
+  /order/orders/list:
+    get:
+      summary: Мерчантын захиалгуудын жагсаалт
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: number
+        - in: query
+          name: limit
+          schema:
+            type: number
+        - in: query
+          name: shop_id
+          schema:
+            type: number
+        - in: query
+          name: account_id
+          schema:
+            type: number
+        - in: query
+          name: status
+          schema:
+            type: string
+        - in: query
+          name: start
+          schema:
+            type: string
+        - in: query
+          name: end
+          schema:
+            type: string
+        - in: query
+          name: payment_type
+          schema:
+            type: string
+        - in: query
+          name: name
+          schema:
+            type: string
+        - in: query
+          name: code
+          schema:
+            type: string
+        - in: query
+          name: phone
+          schema:
+            type: string
+
+      description: Нэвтэрсэн мерчант хэрэглэгч тухайн дэлгүүр ирсэн захиалгуудын жагсаалт авна
+      tags:
+        - "Захиалга"
+      responses:
+        "200":
+          description: OK
+  /order/orders/change-status:
+    post:
+      summary: Захиалгын төлөв солих
+      description: Нэвтэрсэн мерчант хэрэглэгч захиалгын төлөв солино
+      tags:
+        - "Захиалга"
+      responses:
+        "200":
+          description: OK
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - id
+                - shop_id
+                - status
+              properties:
+                id:
+                  type: number
+                shop_id:
+                  type: number
+                status:
+                  type: string
+  /order/orders/unread-count:
+    get:
+      summary:  Уншигдаагүй захиалгуудын тоо
+      tags:
+        - "Захиалга"
+      responses:
+        "200":
+          description: OK
+  /order/orders/change-read-status:
+    post:
+      summary: Захиалгын уншилтын төлөв солих
+      description: Нэвтэрсэн мерчант хэрэглэгч уншилтын захиалгын төлөв солино
+      tags:
+        - "Захиалга"
+      responses:
+        "200":
+          description: OK
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - id
+                - shop_id
+                - is_read
+              properties:
+                id:
+                  type: number
+                shop_id:
+                  type: number
+                is_read:
+                  type: boolean
+  /order/pos-order/make-order/:
+    post:
+      summary: Гар захиалга үүсгэх
+      description: Нэвтэрсэн мерчанрт хэрэглэгч гар утасны аппаас захиалга гараар үүсгэнэ
+      tags:
+        - "Захиалга"
+      responses:
+        "200":
+          description: OK
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OrderInput"
+  /order/loan/directory-list:
+    get:
+      summary:  Шаардлагатай лавлахууд
+      parameters:
+        - in: query
+          name: type
+          schema:
+            type: string
+        - in: query
+          name: state_code
+          schema:
+            type: string
+      description: Хот-аймаг /state/, Сум-дүүрэг /city - query дээр state_code заавал оруулна/ Албан тушаал /appointment/, Ажлын сектор /sector/, Ажлын Дэд сектор /sub_sector/, Боловсрол /degree/, Гэрлэлтийн байдал /marital_status/, Хот/аймаг /state/
+      tags:
+        - "Захиалга"
+      responses:
+        "200":
+          description: OK
+  /order/loan/create-loan-information:
+    post:
+      summary: Зээлийн хүсэлт - Зээлийн мэдээлэл
+      description: Хэрэглэгч зээлийн хүсэлтэд зээлийн мэдээллээ хадгална
+      tags:
+        - "Захиалга"
+      responses:
+        "200":
+          description: OK
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                amount:
+                  type: number
+                prepaid_amt:
+                  type: number
+                period:
+                  type: number
+                loan_crn:
+                  type: string
+  /order/loan/update-personal-information/:id:
+    post:
+      summary: Зээлийн хүсэлт - Зээлдэгчийн мэдээлэл
+      description: Хэрэглэгч зээлийн хүсэлтэд хувийн мэдээллээ хадгална
+      tags:
+        - "Захиалга"
+      responses:
+        "200":
+          description: OK
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                last_name:
+                  type: string
+                first_name:
+                  type: string
+                register_no:
+                  type: string
+                phone:
+                  type: string
+                email:
+                  type: string
+                state:
+                  type: string
+                city:
+                  type: string
+                sub_district:
+                  type: string
+                town:
+                  type: string
+                door_no:
+                  type: string
+                street:
+                  type: string
+  /order/loan/send/:id:
+    post:
+      summary: Зээлийн хүсэлт - Илгээх
+      description: Хэрэглэгч зээлийн хүсэлт илгээнэ
+      tags:
+        - "Захиалга"
+      responses:
+        "200":
+          description: OK
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                degree:
+                  type: string
+                appointment:
+                  type: string
+                sector:
+                  type: string
+                sub_sector:
+                  type: string
+                marital_status:
+                  type: string
+                start_date:
+                  type: date
+                years_work:
+                  type: number
+                agreements:
+                  type: boolean
+  # Catalog paths
+  /catalog/products/by-shop/:shop_id:
+    get:
+      summary: Дэлгүүрийн сайтнаас барааны жагсаалт авах
+      tags:
+        - "Каталог"
+      responses:
+        "200":
+          description: OK
+  /catalog/products/by-shop-and-id/:shop_id/:id:
+    get:
+      summary: Дэлгүүрийн сайтнаас бүтээгдэхүүний дэлгэрэнгүй мэдээлэл авах
+      tags:
+        - "Каталог"
+      responses:
+        "200":
+          description: OK
+  /catalog/product-categories/by-shop/:shop_id:
+    get:
+      summary: Дэлгүүрийн сайтнаас ангилалын жагсаалт авах
+      tags:
+        - "Каталог"
+      responses:
+        "200":
+          description: OK
+  /catalog/product-categories/by-shop-and-id/:shop_id/:id:
+    get:
+      summary: Дэлгүүрийн сайтнаас ангилалын мэдээлэл авах
+      tags:
+        - "Каталог"
+      responses:
+        "200":
+          description: OK
+  /catalog/brands/by-shop/:shop_id:
+    get:
+      summary: Дэлгүүрийн сайтнаас брэндийн жагсаалт авах
+      tags:
+        - "Каталог"
+      responses:
+        "200":
+          description: OK
+  /catalog/brands/by-shop-and-id/:shop_id/:id:
+    get:
+      summary: Дэлгүүрийн сайтнаас брэндийн дэлгэрэнгүй авах
+      tags:
+        - "Каталог"
+      responses:
+        "200":
+          description: OK
+  /catalog/products/list:
+    get:
+      summary: Мерчантын бүх бүтээгдэхүүний жагсаалт
+      tags:
+        - "Каталог"
+      responses:
+        "200":
+          description: OK
+  /catalog/products/detail/:id:
+    get:
+      summary: Мерчантын нэг бүтээгдэхүүний мэдээлэл
+      tags:
+        - "Каталог"
+      responses:
+        "200":
+          description: OK
+  /catalog/products/create:
+    post:
+      summary: Мерчант бараа нэмэх
+      tags:
+        - "Каталог"
+      responses:
+        "200":
+          description: OK
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Product"
+  /catalog/products/update:
+    post:
+      summary: Мерчант бараа засах
+      tags:
+        - "Каталог"
+      responses:
+        "200":
+          description: OK
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              allOf:
+                - properties:
+                    id:
+                      type: number
+                - $ref: "#/components/schemas/Product"
+  /catalog/products/remove:
+    post:
+      summary: Мерчант бараа устгах
+      tags:
+        - "Каталог"
+      responses:
+        "200":
+          description: OK
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: number
+                shop_id:
+                  type: number
+  /catalog/product-categories/list:
+    get:
+      summary: Мерчантын бүх ангилалын жагсаалт
+      tags:
+        - "Каталог"
+      responses:
+        "200":
+          description: OK
+  /catalog/product-categories/detail/:id:
+    get:
+      summary: Мерчантын нэг ангилал
+      tags:
+        - "Каталог"
+      responses:
+        "200":
+          description: OK
+  /catalog/product-categories/create:
+    post:
+      summary: Мерчант ангилал үүсгэх
+      tags:
+        - "Каталог"
+      responses:
+        "200":
+          description: OK
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProductCategory"
+  /catalog/product-categories/update:
+    post:
+      summary: Мерчантын ангилал засах
+      tags:
+        - "Каталог"
+      responses:
+        "200":
+          description: OK
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              allOf:
+                - properties:
+                    id:
+                      type: number
+                - $ref: "#/components/schemas/ProductCategory"
+  /catalog/product-categories/remove:
+    post:
+      summary: Мерчант ангилал устгах
+      tags:
+        - "Каталог"
+      responses:
+        "200":
+          description: OK
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: number
+                shop_id:
+                  type: number
+  /catalog/product-options/list:
+    get:
+      summary: Мерчант бүтээгдэхүүний сонголтууд авах
+      tags:
+        - "Каталог"
+      responses:
+        "200":
+          description: OK
+  /catalog/product-options/detail/:id:
+    get:
+      summary: Мерчант бүтээгдэхүүний сонголтын дэлгэрэнгүй авах
+      tags:
+        - "Каталог"
+      responses:
+        "200":
+          description: OK
+  /catalog/product-options/create:
+    post:
+      summary: Мерчант бүтээгдэхүүний сонголт үүсгэх
+      tags:
+        - "Каталог"
+      responses:
+        "200":
+          description: OK
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                shop_id:
+                  type: number
+                ordering:
+                  type: number
+                name:
+                  type: string
+                values:
+                  type: array
+                  items:
+                    type: string
+  /catalog/product-options/update:
+    post:
+      summary: Мерчант бүтээгдэхүүний сонголт засах
+      tags:
+        - "Каталог"
+      responses:
+        "200":
+          description: OK
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: number
+                shop_id:
+                  type: number
+                ordering:
+                  type: number
+                name:
+                  type: string
+                values:
+                  type: array
+                  items:
+                    type: string
+  /catalog/product-options/remove:
+    post:
+      summary: Мерчант бүтээгдэхүүний сонголт устгах
+      tags:
+        - "Каталог"
+      responses:
+        "200":
+          description: OK
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: number
+                shop_id:
+                  type: number
+  /catalog/brands/list:
+    get:
+      summary: Мерчант брэндүүдийн жагсаалт авах
+      tags:
+        - "Каталог"
+      responses:
+        "200":
+          description: OK
+  /catalog/brands/detail/:id:
+    get:
+      summary: Мерчант брэндийн дэлгэрэнгүй мэдээлэл авах
+      tags:
+        - "Каталог"
+      responses:
+        "200":
+          description: OK
+  /catalog/brands/create:
+    post:
+      summary: Мерчант брэнд сонголт үүсгэх
+      tags:
+        - "Каталог"
+      responses:
+        "200":
+          description: OK
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                shop_id:
+                  type: number
+                name:
+                  type: string
+                logo:
+                  type: string
+  /catalog/brands/update:
+    post:
+      summary: Мерчант бүтээгдэхүүний сонголт засах
+      tags:
+        - "Каталог"
+      responses:
+        "200":
+          description: OK
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: number
+                shop_id:
+                  type: number
+                name:
+                  type: string
+                logo:
+                  type: string
+  /catalog/brands/remove:
+    post:
+      summary: Мерчант бүтээгдэхүүний сонголт устгах
+      tags:
+        - "Каталог"
+      responses:
+        "200":
+          description: OK
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: number
+                shop_id:
+                  type: number
+
+  # Merchant paths
+  /merchant/shops/list:
+    get:
+      summary: Мерчантын жагсаалтаа авах
+      tags:
+        - "Мерчант"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  allOf:
+                    - properties:
+                        id:
+                          type: string
+                    - $ref: "#/components/schemas/Merchant"
+  /merchant/shops/create:
+    post:
+      summary: Шинээр мерчант үүсгэх
+      tags:
+        - "Мерчант"
+      responses:
+        "200":
+          description: OK
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              allOf:
+                - properties:
+                    uid:
+                      type: string
+                - $ref: "#/components/schemas/Merchant"
+  /merchant/shops/update:
+    post:
+      summary: Үүсгэсэн мерчантаа засах
+      tags:
+        - "Мерчант"
+      responses:
+        "200":
+          description: OK
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              allOf:
+                - properties:
+                    id:
+                      type: number
+                - $ref: "#/components/schemas/Merchant"
+  /merchant/uploader/upload-image:
+    post:
+      summary: Зураг CDN-рүү хуулах
+      tags:
+        - "Мерчант"
+      responses:
+        "200":
+          description: OK
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                image:
+                  type: string
+                  description: base64 хувиргасан зураг байна
+  /merchant/uploader/upload-images:
+    post:
+      summary: Олон зураг CDN-рүү хуулах
+      tags:
+        - "Мерчант"
+      responses:
+        "200":
+          description: OK
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                images:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      image:
+                        type: string
+                        description: base64 хувиргасан зураг байна
+  /merchant/bank-accounts/list:
+    get:
+      summary: Банкны дансны жагсаалт
+      tags:
+        - "Мерчант"
+      responses:
+        "200":
+          description: OK
+  /merchant/bank-accounts/create:
+    post:
+      summary: Банкны данс үүсгэх
+      tags:
+        - "Мерчант"
+      responses:
+        "200":
+          description: OK
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                bank:
+                  type: string
+                account_number:
+                  type: string
+                account_holder:
+                  type: string
+                shop_id:
+                  type: number
+  /merchant/bank-accounts/update:
+    post:
+      summary: Банкны данс засах
+      tags:
+        - "Мерчант"
+      responses:
+        "200":
+          description: OK
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                id:
+                  type: number
+                bank:
+                  type: string
+                account_number:
+                  type: string
+                account_holder:
+                  type: string
+                shop_id:
+                  type: number
+  /merchant/bank-accounts/remove:
+    post:
+      summary: Банкны данс устгах
+      tags:
+        - "Мерчант"
+      responses:
+        "200":
+          description: OK
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                id:
+                  type: number
+                shop_id:
+                  type: number
+  /merchant/posts/list:
+    get:
+      summary: Мэдээний жагсаалт
+      tags:
+        - "Мерчант"
+      responses:
+        "200":
+          description: OK
+  /merchant/posts/detail/:id:
+    get:
+      summary: Мэдээний дэлгэрэнгүй
+      tags:
+        - "Мерчант"
+      responses:
+        "200":
+          description: OK
+  /merchant/posts/create:
+    post:
+      summary: Мэдээ үүсгэх
+      tags:
+        - "Мерчант"
+      responses:
+        "200":
+          description: OK
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                status:
+                  type: string
+                title:
+                  type: string
+                body:
+                  type: string
+                image:
+                  type: string
+                shop_id:
+                  type: number
+  /merchant/posts/update:
+    post:
+      summary: Мэдээ засах
+      tags:
+        - "Мерчант"
+      responses:
+        "200":
+          description: OK
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                id:
+                  type: number
+                status:
+                  type: string
+                title:
+                  type: string
+                body:
+                  type: string
+                image:
+                  type: string
+                shop_id:
+                  type: number
+  /merchant/posts/remove:
+    post:
+      summary: Мэдээ устгах
+      tags:
+        - "Мерчант"
+      responses:
+        "200":
+          description: OK
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                id:
+                  type: number
+                shop_id:
+                  type: number
+  /merchant/banners/list:
+    get:
+      summary: Баннерын жагсаалт
+      tags:
+        - "Мерчант"
+      responses:
+        "200":
+          description: OK
+  /merchant/banners/detail/:id:
+    get:
+      summary: Баннерын дэлгэрэнгүй
+      tags:
+        - "Мерчант"
+      responses:
+        "200":
+          description: OK
+  /merchant/banners/create:
+    post:
+      summary: Баннер үүсгэх
+      tags:
+        - "Мерчант"
+      responses:
+        "200":
+          description: OK
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                status:
+                  type: string
+                title:
+                  type: string
+                type:
+                  type: string
+                position:
+                  type: string
+                image:
+                  type: string
+                shop_id:
+                  type: number
+  /merchant/banners/update:
+    post:
+      summary: Баннер засах
+      tags:
+        - "Мерчант"
+      responses:
+        "200":
+          description: OK
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                id:
+                  type: number
+                status:
+                  type: string
+                title:
+                  type: string
+                type:
+                  type: string
+                position:
+                  type: string
+                image:
+                  type: string
+                shop_id:
+                  type: number
+  /merchant/banners/remove:
+    post:
+      summary: Баннер устгах
+      tags:
+        - "Мерчант"
+      responses:
+        "200":
+          description: OK
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                id:
+                  type: number
+                shop_id:
+                  type: number
+  /merchant/customers/list-accounts:
+    get:
+      summary: Харилцагчийн жагсаалт
+      tags:
+        - "Мерчант"
+      responses:
+        "200":
+          description: OK
+  /merchant/customers/detail/:id:
+    get:
+      summary: Харилцагчийн дэлгэрэнгүй
+      tags:
+        - "Мерчант"
+      responses:
+        "200":
+          description: OK
+  /merchant/warehouses/list:
+    get:
+      summary: Агуулахын жагсаалт
+      tags:
+        - "Мерчант"
+      responses:
+        "200":
+          description: OK
+  /merchant/warehouses/detail/:id:
+    get:
+      summary: Агуулахын дэлгэрэнгүй
+      tags:
+        - "Мерчант"
+      responses:
+        "200":
+          description: OK
+  /merchant/warehouses/create:
+    post:
+      summary: Агуулах үүсгэх
+      tags:
+        - "Мерчант"
+      responses:
+        "200":
+          description: OK
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                shop_id:
+                  type: string
+                name:
+                  type: string
+                province:
+                  type: string
+                district:
+                  type: string
+                unit:
+                  type: string
+                address:
+                  type: string
+                lat:
+                  type: number
+                lng:
+                  type: number
+                steward_name:
+                  type: string
+                steward_phone:
+                  type: string
+  /merchant/warehouses/update:
+    post:
+      summary: Агуулах засах
+      tags:
+        - "Мерчант"
+      responses:
+        "200":
+          description: OK
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                id:
+                  type: number
+                shop_id:
+                  type: string
+                name:
+                  type: string
+                province:
+                  type: string
+                district:
+                  type: string
+                unit:
+                  type: string
+                address:
+                  type: string
+                lat:
+                  type: number
+                lng:
+                  type: number
+                steward_name:
+                  type: string
+                steward_phone:
+                  type: string
+  /merchant/warehouses/remove:
+    post:
+      summary: Агуулах устгах
+      tags:
+        - "Мерчант"
+      responses:
+        "200":
+          description: OK
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                id:
+                  type: number
+                shop_id:
+                  type: number
+  /merchant/delivery-companies/list:
+    get:
+      summary: Хүргэлтийн компаниудын жагсаалт
+      tags:
+        - "Мерчант"
+      responses:
+        "200":
+          description: OK
+  /merchant/delivery-orders/list-by-order:
+    get:
+      summary: Хүргэлтийн хүсэлтүүдийн жагсаалт
+      tags:
+        - "Мерчант"
+      responses:
+        "200":
+          description: OK
+  /merchant/delivery-orders/create:
+    post:
+      summary: Хүргэлтийн хүсэлт үүсгэх
+      tags:
+        - "Мерчант"
+      responses:
+        "200":
+          description: OK
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                id:
+                  type: number
+                shop_id:
+                  type: number
+                order_id:
+                  type: number
+                attributes:
+                  type: object
+                package_size:
+                  type: number
+                warehouse_id:
+                  type: number
+                package_quantity:
+                  type: number
+                delivery_company_id:
+                  type: number
+                is_same_day:
+                  type: boolean
+                has_payment:
+                  type: boolean
+  /merchant/collections/create:
+    post:
+      summary: Коллекц үүсгэх
+      tags:
+        - "Мерчант"
+      responses:
+        "200":
+          description: OK
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                name:
+                  type: string
+                shop_id:
+                  type: number
+                sale_channels:
+                  type: array
+                  items:
+                    type: string
+                description:
+                  type: string
+                image:
+                  type: string
+                image_horizontal:
+                  type: string
+                image_vertical:
+                  type: string
+                criteria:
+                  type: array
+                  items:
+                    type: object
+                show_on_home:
+                  type: boolean
+                scope:
+                  type: string
+                expire_at:
+                  type: date
+  /merchant/collections/update:
+    post:
+      summary: Коллекц засах
+      tags:
+        - "Мерчант"
+      responses:
+        "200":
+          description: OK
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                id:
+                  type: number
+                name:
+                  type: string
+                shop_id:
+                  type: number
+                sale_channels:
+                  type: array
+                  items:
+                    type: string
+                description:
+                  type: string
+                image:
+                  type: string
+                image_horizontal:
+                  type: string
+                image_vertical:
+                  type: string
+                criteria:
+                  type: array
+                  items:
+                    type: object
+                show_on_home:
+                  type: boolean
+                scope:
+                  type: string
+                expire_at:
+                  type: date
+  /merchant/collections/remove:
+    post:
+      summary: Коллекц устгах
+      tags:
+        - "Мерчант"
+      responses:
+        "200":
+          description: OK
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                id:
+                  type: number
+                shop_id:
+                  type: number
+  /merchant/collections/enable:
+    post:
+      summary: Коллекц идэвхжүүлэх
+      tags:
+        - "Мерчант"
+      responses:
+        "200":
+          description: OK
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                id:
+                  type: number
+                shop_id:
+                  type: number
+  /merchant/collections/disable:
+    post:
+      summary: Коллекц идэвхгүй болгох
+      tags:
+        - "Мерчант"
+      responses:
+        "200":
+          description: OK
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                id:
+                  type: number
+                shop_id:
+                  type: number
+  /merchant/collections/list:
+    get:
+      summary: Мерчантын коллекцуудын жагсаалт
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: number
+        - in: query
+          name: limit
+          schema:
+            type: number
+        - in: query
+          name: shop_id
+          schema:
+            type: number
+      description: Нэвтэрсэн мерчант хэрэглэгч тухайн дэлгүүрт үүссэн коллекцуудын жагсаалт авна
+      tags:
+        - "Мерчант"
+      responses:
+        "200":
+          description: OK
+  /merchant/collections/detail:
+    get:
+      summary: Мерчантын коллекцын дэлгэрэнгүй
+      parameters:
+        - in: query
+          name: id
+          schema:
+            type: number
+        - in: query
+          name: shop_id
+          schema:
+            type: number
+      tags:
+        - "Мерчант"
+      responses:
+        "200":
+          description: OK
+
+  # Marketplace paths
+  /storefront/marketplace/by-uid/:uid:
+    get:
+      summary: Маркетплэйсийн дэлгэрэнгүй
+      tags:
+        - "Маркетплэйс"
+      responses:
+        "200":
+          description: OK
+  /catalog/marketplace/search:
+    get:
+      summary: Барааны каталогноос хайлт хийх
+      tags:
+        - "Маркетплэйс"
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: number
+        - in: query
+          name: sort_field
+          schema:
+            type: string
+        - in: query
+          name: sort_direction
+          schema:
+            type: string
+        - in: query
+          name: shop_id
+          schema:
+            type: number
+        - in: query
+          name: category_codes
+          schema:
+            type: string
+        - in: query
+          name: query
+          schema:
+            type: string
+        - in: query
+          name: channel
+          schema:
+            type: string
+        - in: query
+          name: brand_id
+          schema:
+            type: string
+        - in: query
+          name: featured
+          schema:
+            type: boolean
+        - in: query
+          name: have_sales
+          schema:
+            type: boolean
+      responses:
+        "200":
+          description: OK
+  /catalog/marketplace/detail/:id:
+    get:
+      summary: Барааны дэлгэрэнгүй мэдээлэл татах
+      tags:
+        - "Маркетплэйс"
+      responses:
+        "200":
+          description: OK
+  /catalog/marketplace/categories:
+    get:
+      summary: Категорийн мэдээлэл авах
+      tags:
+        - "Маркетплэйс"
+      responses:
+        "200":
+          description: OK
+
+  # Monitoring paths
+  /monitoring/collections/create:
+    post:
+      summary: Коллекц үүсгэх
+      tags:
+        - "Монитор"
+      responses:
+        "200":
+          description: OK
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                name:
+                  type: string
+                sale_channels:
+                  type: array
+                  items:
+                    type: string
+                description:
+                  type: string
+                criteria:
+                  type: array
+                  items:
+                    type: object
+                scope:
+                  type: string
+  /monitoring/collections/update:
+    post:
+      summary: Коллекц засах
+      tags:
+        - "Монитор"
+      responses:
+        "200":
+          description: OK
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                id:
+                  type: number
+                name:
+                  type: string
+                sale_channels:
+                  type: array
+                  items:
+                    type: string
+                description:
+                  type: string
+                criteria:
+                  type: array
+                  items:
+                    type: object
+                scope:
+                  type: string
+  /monitoring/collections/remove:
+    post:
+      summary: Коллекц устгах
+      tags:
+        - "Монитор"
+      responses:
+        "200":
+          description: OK
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                id:
+                  type: number
+  /monitoring/collections/enable:
+    post:
+      summary: Коллекц идэвхжүүлэх
+      tags:
+        - "Монитор"
+      responses:
+        "200":
+          description: OK
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                id:
+                  type: number
+  /monitoring/collections/disable:
+    post:
+      summary: Коллекц идэвхгүй болгох
+      tags:
+        - "Монитор"
+      responses:
+        "200":
+          description: OK
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                id:
+                  type: number
+  /monitoring/collections/list:
+    get:
+      summary: Коллекцуудын жагсаалт
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: number
+        - in: query
+          name: limit
+          schema:
+            type: number
+      description: Нэвтэрсэн админ хэрэглэгч үүссэн коллекцуудын жагсаалт авна
+      tags:
+        - "Монитор"
+      responses:
+        "200":
+          description: OK
+  /monitoring/collections/detail:
+    get:
+      summary: Коллекцын дэлгэрэнгүй
+      parameters:
+        - in: query
+          name: id
+          schema:
+            type: number
+      tags:
+        - "Монитор"
+      responses:
+        "200":
+          description: OK
+
+components:
+  schemas:
+    AuthResponse:
+      type: object
+      properties:
+        id:
+          type: number
+        status:
+          type: "string"
+          description: ok | error
+        auth_type:
+          type: string
+          description: phone | facebook | email
+        access_token:
+          type: string
+        first_name:
+          type: string
+        last_name:
+          type: string
+        email:
+          type: string
+        facebook_id:
+          type: string
+        facebook_name:
+          type: string
+    Product:
+      type: object
+      properties:
+        name:
+          type: string
+        sku:
+          type: string
+        status:
+          type: string
+        shop_id:
+          type: number
+        category_id:
+          type: number
+        image:
+          type: string
+        price:
+          type: number
+        sale_price:
+          type: number
+        description:
+          type: string
+        images:
+          type: array
+          items:
+            type: object
+            properties:
+              url:
+                type: string
+        featured:
+          type: boolean
+        stock:
+          type: number
+        variants:
+          type: array
+          items:
+            $ref: "#/components/schemas/Variant"
+        bundle_size:
+          type: number
+        all_options:
+          type: number
+        has_delivery:
+          type: boolean
+        has_inventory:
+          type: boolean
+        brand_id:
+          type: number
+        tags:
+          type: array
+        categories:
+          type: array
+        short_description:
+          type: string
+        video_url:
+          type: string
+    OrderInput:
+      type: object
+      properties:
+        account_id:
+          type: number
+        items:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: number
+              shop_id:
+                type: number
+              name:
+                type: string
+              variant_id:
+                type: number
+              price:
+                type: number
+              quantity:
+                type: number
+              images:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    url:
+                      type: string
+              options:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: number
+                    title:
+                      type: string
+                    value:
+                      type: string
+        customer_full_name:
+          type: string
+        customer_last_name:
+          type: string
+        customer_first_name:
+          type: string
+        customer_phone:
+          type: string
+        customer_phone_additional:
+          type: string
+        customer_address:
+          type: string
+        customer_email:
+          type: string
+        customer_regno:
+          type: string
+        is_donation:
+          type: boolean
+        payment_type:
+          type: string
+        delivery_type:
+          type: string
+        coupon_code:
+          type: string
+        district:
+          type: string
+        unit:
+          type: string
+        lat:
+          type: number
+        lng:
+          type: number
+        description:
+          type: string
+    Variant:
+      type: object
+      properties:
+        variantPrice:
+          type: number
+        variantSalePrice:
+          type: number
+        variantStock:
+          type: number
+        variantSku:
+          type: string
+        variantImg:
+          type: string
+        options:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: number
+              title:
+                type: string
+              value:
+                type: string
+    ProductCategory:
+      type: object
+      properties:
+        shop_id:
+          type: number
+        name:
+          type: string
+        parent_id:
+          type: number
+        level:
+          type: number
+        ordering:
+          type: number
+    Merchant:
+      type: object
+      properties:
+        name:
+          type: string
+        logo:
+          type: string
+        cover:
+          type: string
+        phone:
+          type: string
+        category:
+          type: string
+        address:
+          type: string
+        email:
+          type: string
+        source:
+          type: string
+        description:
+          type: string
+        facebook_url:
+          type: string
+        instagram_url:
+          type: string
+        youtube_url:
+          type: string
+        payment_rule:
+          type: string
+        delivery_rule:
+          type: string
+        terms_of_service:
+          type: string
